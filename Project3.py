@@ -1,5 +1,8 @@
 from datetime import datetime
 import sys
+import requests
+import pygal
+import lxml
 
 # stock APi: Y5BQFD53B87D4N0O
 
@@ -40,31 +43,111 @@ def getDate():
             print("\nWrong Date Format. Please try again.\n")
 
 
+def get_JSON_data(symbol, time_series, date1, date2):
+    if time_series == "1":
+        time_string = "TIME_SERIES_INTRADAY"
+    elif time_series == "2":
+        time_string = "TIME_SERIES_DAILY"
+    elif time_series == "3":
+        time_string = "TIME_SERIES_WEEKLY"
+    else:
+        time_string = "TIME_SERIES_MONTHLY"
+    
+    interval = (date2 - date1).days
+    if (time_string == "TIME_SERIES_INTRADAY"):
+        url = f'https://www.alphavantage.co/query?function={time_string}&symbol={symbol}&interval=5min&apikey=Y5BQFD53B87D4N0O'
+    else:
+        url = f'https://www.alphavantage.co/query?function={time_string}&symbol={symbol}&apikey=Y5BQFD53B87D4N0O'
+    
+    r = requests.get(url)
+    data = r.json()
 
+    
+    return(data)
 
+def filter_data_by_date(data, date1, date2, time_series_key): # DOESN'T WORK!!
+    filtered_data = {}
+    for date, values in data[time_series_key].items():
+        date_obj = datetime.strptime(date, "%Y-%m-%d").date()
+        if date1 <= date_obj <= date2:
+            filtered_data[date] = values
+    return filtered_data
 
+def graph(data, symbol, time_series, date1, date2, chart_type):
+    time_series_keys = {
+        "1": "Time Series (5min)",
+        "2": "Time Series (Daily)",
+        "3": "Weekly Time Series",
+        "4": "Monthly Time Series"
+    }
 
+    time_series_key = time_series_keys.get(time_series)
+    if time_series_key not in data:
+        print("Error: No data available")
+        return
+    
+    time_series_data = {}
+    for date, values in data[time_series_key].items():
+        time_series_data[date] = values
+
+    if not time_series_data:
+        print("No data available for the given date range.")
+        return
+    
+    dates = []
+    close = []
+    opens = []
+    high = []
+    low = []
+    
+    # Extract dates and closing prices from the filtered data
+    for date, values in sorted(time_series_data.items()):
+        dates.append(date)
+        close.append(float(values["4. close"]))  # Use the closing price for plotting
+        opens.append(float(values["1. open"]))
+        high.append(float(values["2. high"]))
+        low.append(float(values["3. low"]))
+
+    
+    # Create the chart
+    if chart_type == "2":  # Line chart
+        line_chart = pygal.Line()
+        line_chart.title = f"Stock data for {symbol}: {date1} to {date2}"
+        line_chart.x_labels = dates
+        line_chart.add("Close", close)
+        line_chart.add("Open", opens)
+        line_chart.add("High", high)
+        line_chart.add("Low", low)
+        line_chart.render_in_browser()  # Display in the browser
+    else:
+        print("Currently only Line chart is implemented")
 
 def main():
-    while True:
-        print("Stock Data Visualizer")
-        print("-" * 10)
+    print("Stock Data Visualizer")
+    print("-" * 10)
         
-        stock = getStock()
-        print(stock)
-        chart = getChart()
-        print(chart)
-        time = getTimeSeries()
-        print(time)
-        date1, date2 = getDate()
-        print(date1)
-        print(date2)
-        Repeat = input("Would you like to view more stock data? Press 'y' to continue: ").lower()
-        if(Repeat != "y"):
-            sys.exit()
+    stock = getStock()
+    #print(stock)
+    chart = getChart()
+    #print(chart)
+    time = getTimeSeries()
+    #print(time)
+    date1, date2 = getDate()
+    #print(date1)
+    #print(date2)
+    #Repeat = input("Would you like to view more stock data? Press 'y' to continue: ").lower()
+    #if(Repeat != "y"):
+#    sys.exit()
+        
+    data = get_JSON_data(stock, time, date1, date2)
+
+        
+    graph(data, stock, time, date1, date2, chart)
+
 
 if __name__ == "__main__":
     main()
+    
 
 
 
