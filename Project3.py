@@ -1,6 +1,8 @@
 from datetime import datetime
 import sys
 
+# stock APi: Y5BQFD53B87D4N0O
+
 def getStock():
     stock_symbol = input("Enter the stock symbol you are looking for: ")
     return stock_symbol
