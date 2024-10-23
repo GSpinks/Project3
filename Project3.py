@@ -21,7 +21,7 @@ def getChart():
 def getTimeSeries():
     while True:
         dash = ("-"*56)
-        time = input(f"\nSelect the Time Series of the chart you want to Generate\n{dash}\n1. Intraday\n2. Daily\n3. Weekly\n4. Monthly\n\nEnter the time series option (1, 2, 3, 4): ")
+        time = input(f"\nSelect the Time Series of the chart you want to generate. Warning: intraday only contains recent data.\n{dash}\n1. Intraday\n2. Daily\n3. Weekly\n4. Monthly\n\nEnter the time series option (1, 2, 3, 4): ")
         if time == "1" or time == "2" or time == "3" or time == "4":
             return time
         else:
@@ -55,9 +55,9 @@ def get_JSON_data(symbol, time_series, date1, date2):
     
     interval = (date2 - date1).days
     if (time_string == "TIME_SERIES_INTRADAY"):
-        url = f'https://www.alphavantage.co/query?function={time_string}&symbol={symbol}&interval=5min&apikey=Y5BQFD53B87D4N0O'
+        url = f'https://www.alphavantage.co/query?function={time_string}&symbol={symbol}&interval=5min&outputsize=full&apikey=Y5BQFD53B87D4N0O'
     else:
-        url = f'https://www.alphavantage.co/query?function={time_string}&symbol={symbol}&apikey=Y5BQFD53B87D4N0O'
+        url = f'https://www.alphavantage.co/query?function={time_string}&symbol={symbol}&outputsize=full&apikey=Y5BQFD53B87D4N0O'
     
     r = requests.get(url)
     data = r.json()
@@ -67,10 +67,17 @@ def get_JSON_data(symbol, time_series, date1, date2):
 
 def filter_data_by_date(data, date1, date2, time_series_key): # DOESN'T WORK!!
     filtered_data = {}
-    for date, values in data[time_series_key].items():
-        date_obj = datetime.strptime(date, "%Y-%m-%d").date()
-        if date1 <= date_obj <= date2:
-            filtered_data[date] = values
+    if (time_series_key == "Time Series (5min)"):
+        for date, values in data[time_series_key].items():
+            date_obj = datetime.strptime(date, "%Y-%m-%d %H:%M:%S").date()
+            if date1 <= date_obj <= date2:
+                filtered_data[date] = values
+    else:
+        for date, values in data[time_series_key].items():
+            date_obj = datetime.strptime(date, "%Y-%m-%d").date()
+            if date1 <= date_obj <= date2:
+                filtered_data[date] = values
+    
     return filtered_data
 
 def graph(data, symbol, time_series, date1, date2, chart_type):
@@ -86,9 +93,9 @@ def graph(data, symbol, time_series, date1, date2, chart_type):
         print("Error: No data available")
         return
     
-    time_series_data = {}
-    for date, values in data[time_series_key].items():
-        time_series_data[date] = values
+    time_series_data = filter_data_by_date(data, date1, date2, time_series_key)
+    #for date, values in data[time_series_key].items():
+    #    time_series_data[date] = values
 
     if not time_series_data:
         print("No data available for the given date range.")
@@ -120,7 +127,14 @@ def graph(data, symbol, time_series, date1, date2, chart_type):
         line_chart.add("Low", low)
         line_chart.render_in_browser()  # Display in the browser
     else:
-        print("Currently only Line chart is implemented")
+        bar_chart = pygal.Bar()
+        bar_chart.title = f"Stock data for {symbol}: {date1} to {date2}"
+        bar_chart.x_labels = dates
+        bar_chart.add("Close", close)
+        bar_chart.add("Open", opens)
+        bar_chart.add("High", high)
+        bar_chart.add("Low", low)
+        bar_chart.render_in_browser()  # Display in the browser
 
 def main():
     print("Stock Data Visualizer")
@@ -141,7 +155,7 @@ def main():
         
     data = get_JSON_data(stock, time, date1, date2)
 
-        
+    #print(data)
     graph(data, stock, time, date1, date2, chart)
 
 
