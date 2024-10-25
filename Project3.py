@@ -4,7 +4,7 @@ import requests
 import pygal
 import lxml
 
-# stock APi: Y5BQFD53B87D4N0O
+# Stock API: Y5BQFD53B87D4N0O
 
 def getStock():
     stock_symbol = input("Enter the stock symbol you are looking for: ")
@@ -21,7 +21,7 @@ def getChart():
 def getTimeSeries():
     while True:
         dash = ("-"*56)
-        time = input(f"\nSelect the Time Series of the chart you want to generate. Warning: intraday only contains recent data.\n{dash}\n1. Intraday\n2. Daily\n3. Weekly\n4. Monthly\n\nEnter the time series option (1, 2, 3, 4): ")
+        time = input(f"\nSelect the Time Series of the chart you want to generate. Warning: Intraday only contains recent data.\n{dash}\n1. Intraday\n2. Daily\n3. Weekly\n4. Monthly\n\nEnter the time series option (1, 2, 3, 4): ")
         if time == "1" or time == "2" or time == "3" or time == "4":
             return time
         else:
@@ -29,8 +29,8 @@ def getTimeSeries():
 
 def getDate():
     while True:
-        dateStart = input("Enter the start Date (YYYY-MM-DD)")
-        dateEnd = input("Enter the end Date (YYYY-MM-DD)")
+        dateStart = input("Enter the start date (YYYY-MM-DD): ")
+        dateEnd = input("Enter the end date (YYYY-MM-DD): ")
         dateFormat = "%Y-%m-%d"
         try:
             date1 = datetime.strptime(dateStart, dateFormat).date()
@@ -38,10 +38,9 @@ def getDate():
             if date1 < date2:
                 return date1, date2
             else:
-                print("\nError: Start date cannot be later than End date. Enter the dates again.\n")
+                print("\nError: Start date cannot be later than end date. Enter the dates again.\n")
         except:
-            print("\nWrong Date Format. Please try again.\n")
-
+            print("\nWrong date format. Please try again.\n")
 
 def get_JSON_data(symbol, time_series, date1, date2):
     if time_series == "1":
@@ -139,29 +138,20 @@ def graph(data, symbol, time_series, date1, date2, chart_type):
 def main():
     print("Stock Data Visualizer")
     print("-" * 10)
-        
-    stock = getStock()
-    #print(stock)
-    chart = getChart()
-    #print(chart)
-    time = getTimeSeries()
-    #print(time)
-    date1, date2 = getDate()
-    #print(date1)
-    #print(date2)
-    #Repeat = input("Would you like to view more stock data? Press 'y' to continue: ").lower()
-    #if(Repeat != "y"):
-#    sys.exit()
-        
-    data = get_JSON_data(stock, time, date1, date2)
 
-    #print(data)
-    graph(data, stock, time, date1, date2, chart)
+    while True:
+        stock = getStock()
+        chart = getChart()
+        time = getTimeSeries()
+        date1, date2 = getDate()
+        
+        data = get_JSON_data(stock, time, date1, date2)
+        graph(data, stock, time, date1, date2, chart)
 
+        repeat = input("Would you like to view more stock data? Press 'y' to continue: ").strip().lower()
+        if repeat != 'y':
+            print("Thank you and goodbye!")
+            sys.exit()
 
 if __name__ == "__main__":
     main()
-    
-
-
-
