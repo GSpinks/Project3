@@ -65,9 +65,14 @@ def get_JSON_data(symbol, time_series, date1, date2):
     
     return(data)
 
-def filter_data_by_date(data, date1, date2, time_series_key): # DOESN'T WORK!!
+def filter_data_by_date(data, date1, date2, time_series_key):
     filtered_data = {}
-    if (time_series_key == "Time Series (5min)"):
+    
+    # Convert date1 and date2 to datetime.date
+    date1 = date1.date()
+    date2 = date2.date()
+
+    if time_series_key == "Time Series (5min)":
         for date, values in data[time_series_key].items():
             date_obj = datetime.strptime(date, "%Y-%m-%d %H:%M:%S").date()
             if date1 <= date_obj <= date2:
@@ -79,6 +84,7 @@ def filter_data_by_date(data, date1, date2, time_series_key): # DOESN'T WORK!!
                 filtered_data[date] = values
     
     return filtered_data
+
 
 def graph(data, symbol, time_series, date1, date2, chart_type):
     time_series_keys = {
