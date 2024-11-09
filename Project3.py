@@ -3,14 +3,14 @@ import requests
 import pygal
 import os
 
-# stock APi: Y5BQFD53B87D4N0O
+# Stock API: Y5BQFD53B87D4N0O
 
-#old functions
-#def getStock():
+### Old functions ###
+# def getStock():
 #    stock_symbol = input("Enter the stock symbol you are looking for: ")
 #    return stock_symbol
 
-#def getChart():
+# def getChart():
 #    while True:
 #        types = input("\nChart Types\n-------------\n1. Bar\n2. Line\n\nEnter the chart type you want (1, 2): ")
 #        if types == "1" or types == "2":
@@ -18,7 +18,7 @@ import os
 #        else:
 #            print("Enter a 1 or 2 for chart type")
 
-#def getTimeSeries():
+# def getTimeSeries():
 #    while True:
 #        dash = ("-"*56)
 #        time = input(f"\nSelect the time series of the chart you want to generate. Warning: intraday only contains recent data.\n{dash}\n1. Intraday\n2. Daily\n3. Weekly\n4. Monthly\n\nEnter the time series option (1, 2, 3, 4): ")
@@ -27,7 +27,7 @@ import os
 #        else:
 #            print("Enter a 1, 2, 3, or 4, for Time Series")
 
-#def getDate():
+# def getDate():
 #    while True:
 #        dateStart = input("Enter the start Date (YYYY-MM-DD)")
 #        dateEnd = input("Enter the end Date (YYYY-MM-DD)")
@@ -169,7 +169,7 @@ def main():
     #print(date2)
     #Repeat = input("Would you like to view more stock data? Press 'y' to continue: ").lower()
     #if(Repeat != "y"):
-#    sys.exit()
+    #    sys.exit()
         
     data = get_JSON_data("AAPL", "monthly", datetime(2022,2,22), datetime(2022,7,22)) #debug
 
@@ -179,7 +179,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
-
-
-
